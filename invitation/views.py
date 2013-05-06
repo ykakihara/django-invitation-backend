@@ -19,6 +19,13 @@ from .forms import InvitationForm
 class RegistrationView(BaseRegistrationView):
     """Registration via invitation key."""
 
+    def get_initial(self):
+        """Sets the invitation's email as the initial value for the form."""
+        return {'email': self.invitation.email}
+
+    def get_success_url(self, request, user):
+        return (user.get_absolute_url(), (), {})
+
     def registration_allowed(self, request):
         """Search for a valid invitation key."""
         invitation_key = self.kwargs.get('invitation_key')
@@ -38,6 +45,7 @@ class RegistrationView(BaseRegistrationView):
         login(request, self.user)
         user_registered.send(sender=self.__class__, user=self.user,
                              request=request)
+        self.invitation.mark_accepted(self.user)
         return self.user
 
 
@@ -45,8 +53,8 @@ class InvitationView(FormView):
     """Create an invitation and send invitation email."""
     form_class = InvitationForm
     http_method_names = ['get', 'post', 'head', 'options', 'trace']
-    invitation_error_url = 'invitation_send_failed'
-    success_url = 'invitation_send_done'
+    invitation_error_url = 'invitation_unavailable'
+    success_url = 'invitation_complete'
     template_name = 'invitation/invitation_form.html'
 
     @method_decorator(login_required)
