@@ -35,7 +35,7 @@ setup(
     packages = ['invitation',
                 'invitation.tests'],
     package_data= {
-        'invitation': ['tests/templates/invitations/*',
+        'invitation': ['tests/templates/invitation/*',
                        'tests/templates/registration/*',
                        'locale/*/LC_MESSAGES/django.*']
     },
