@@ -1,6 +1,8 @@
 import datetime
 from django.core import mail
 from django.contrib.auth.models import User
+from django.utils.timezone import now
+
 from utils import BaseTestCase
 from invitation import app_settings
 from invitation.models import Invitation
@@ -19,8 +21,7 @@ class InvitationTestCase(BaseTestCase):
 
     def make_invalid(self, invitation=None):
         invitation = invitation or self.invitation
-        invitation.date_invited = datetime.datetime.now() - \
-                                  datetime.timedelta(EXPIRE_DAYS + 10)
+        invitation.date_invited = now() - datetime.timedelta(EXPIRE_DAYS + 10)
         invitation.save()
         return invitation
 

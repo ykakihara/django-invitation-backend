@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site, RequestSite
 from django.db import models
 from django.template.loader import render_to_string
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 import app_settings
@@ -61,14 +62,12 @@ class InvitationManager(models.Manager):
 
     def valid(self):
         """Filter valid invitations."""
-        expiration = datetime.datetime.now() - datetime.timedelta(
-                                                     app_settings.EXPIRE_DAYS)
+        expiration = now() - datetime.timedelta(app_settings.EXPIRE_DAYS)
         return self.get_query_set().filter(date_invited__gte=expiration)
 
     def invalid(self):
         """Filter invalid invitation."""
-        expiration = datetime.datetime.now() - datetime.timedelta(
-                                                     app_settings.EXPIRE_DAYS)
+        expiration = now() - datetime.timedelta(app_settings.EXPIRE_DAYS)
         return self.get_query_set().filter(date_invited__le=expiration)
 
     def delete_expired_keys(self):
@@ -90,8 +89,7 @@ class Invitation(models.Model):
     user = models.ForeignKey(User, related_name='invitations')
     email = models.EmailField(_(u'e-mail'))
     key = models.CharField(_(u'invitation key'), max_length=40, unique=True)
-    date_invited = models.DateTimeField(_(u'date invited'),
-                                        default=datetime.datetime.now)
+    date_invited = models.DateTimeField(_(u'date invited'), default=now())
 
     objects = InvitationManager()
 
@@ -119,7 +117,7 @@ class Invitation(models.Model):
         """Return ``True`` if the invitation is still valid, ``False``
         otherwise.
         """
-        return datetime.datetime.now() < self._expires_at
+        return now() < self._expires_at
 
     def expiration_date(self):
         """Return a ``datetime.date()`` object representing expiration date.
