@@ -71,6 +71,20 @@ class InvitationManager(models.Manager):
                                                      app_settings.EXPIRE_DAYS)
         return self.get_query_set().filter(date_invited__le=expiration)
 
+    def delete_expired_keys(self):
+        """Removes expired instances of ``Invitation``.
+
+        Invitation keys to be deleted are identified by searching for
+        instances of ``Invitation`` with difference between now and
+        `date_invited` date greater than ``EXPIRE_DAYS``.
+
+        It is recommended that this method be executed regularly as
+        part of your routine site maintenance; this application
+        provides a custom management command which will call this
+        method, accessible as ``manage.py cleanupinvitations``.
+        """
+        return self.invalid().delete()
+
 
 class Invitation(models.Model):
     user = models.ForeignKey(User, related_name='invitations')
