@@ -41,7 +41,7 @@ setup(
     },
     data_files=[('', ['LICENSE.txt',
                       'README.rst'])],
-    description = 'Registration through invitations',
+    description = 'Registration through invitations backend for django-registration > 0.9',
     long_description=long_description,
     classifiers = ['Development Status :: 4 - Beta',
                    'Environment :: Web Environment',

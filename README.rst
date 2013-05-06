@@ -1,6 +1,9 @@
 Built on top of ``django-registration``, **django-invitation-backend**
 handles registration through invitations.
 
+.. note::
+   This backend is built for ``django-registration 0.9`` or above.
+
 
 Features
 ========
