@@ -14,32 +14,6 @@ import app_settings
 import signals
 
 
-def performance_calculator_invite_only(invitation_stats):
-    """Calculate a performance score between ``0.0`` and ``1.0``."""
-    if app_settings.INVITE_ONLY:
-        total = invitation_stats.available + invitation_stats.sent
-    try:
-        send_ratio = float(invitation_stats.sent) / total
-    except ZeroDivisionError:
-        send_ratio = 0.0
-    accept_ratio = performance_calculator_invite_optional(invitation_stats)
-    return min((send_ratio + accept_ratio) * 0.6, 1.0)
-
-
-def performance_calculator_invite_optional(invitation_stats):
-    try:
-        accept_ratio = float(invitation_stats.accepted) / invitation_stats.sent
-        return min(accept_ratio, 1.0)
-    except ZeroDivisionError:
-        return 0.0
-
-
-DEFAULT_PERFORMANCE_CALCULATORS = {
-    True: performance_calculator_invite_only,
-    False: performance_calculator_invite_optional,
-}
-
-
 class InvitationError(Exception):
     pass
 
@@ -62,11 +36,8 @@ class InvitationManager(models.Manager):
         except (Invitation.DoesNotExist, IndexError):
             pass
         if invitation is None:
-            user.invitation_stats.use()
-            key = '%s%0.16f%s%s' % (settings.SECRET_KEY,
-                                    random.random(),
-                                    user.email,
-                                    email)
+            key = '%s%0.16f%s%s' % (settings.SECRET_KEY, random.random(),
+                                    user.email, email)
             key = hashlib.sha1(key).hexdigest()
             invitation = self.create(user=user, email=email, key=key)
         return invitation
@@ -196,126 +167,8 @@ class Invitation(models.Model):
         ``invitation.signals.invitation_accepted`` is sent just before the
         instance is deleted.
         """
-        self.user.invitation_stats.mark_accepted()
         signals.invitation_accepted.send(sender=self,
                                          inviting_user=self.user,
                                          new_user=new_user)
         self.delete()
     mark_accepted.alters_data = True
-
-
-class InvitationStatsManager(models.Manager):
-    def give_invitations(self, user=None, count=None):
-        rewarded_users = 0
-        invitations_given = 0
-        if not isinstance(count, int) and not callable(count):
-            raise TypeError('Count must be int or callable.')
-        if user is None:
-            qs = self.get_query_set()
-        else:
-            qs = self.filter(user=user)
-        for instance in qs:
-            if callable(count):
-                c = count(instance.user)
-            else:
-                c = count
-            if c:
-                instance.add_available(c)
-                rewarded_users += 1
-                invitations_given += c
-        return rewarded_users, invitations_given
-
-    def reward(self, user=None, reward_count=app_settings.INITIAL_INVITATIONS):
-        def count(user):
-            if user.invitation_stats.performance >= \
-                                                app_settings.REWARD_THRESHOLD:
-                return reward_count
-            return 0
-        return self.give_invitations(user, count)
-
-
-class InvitationStats(models.Model):
-    """Store invitation statistics for ``user``."""
-    user = models.OneToOneField(User,
-                                related_name='invitation_stats')
-    available = models.IntegerField(_(u'available invitations'),
-                                    default=app_settings.INITIAL_INVITATIONS)
-    sent = models.IntegerField(_(u'invitations sent'), default=0)
-    accepted = models.IntegerField(_(u'invitations accepted'), default=0)
-
-    objects = InvitationStatsManager()
-
-    class Meta:
-        verbose_name = verbose_name_plural = _(u'invitation stats')
-        ordering = ('-user',)
-
-    def __unicode__(self):
-        return _(u'invitation stats for %(username)s') % {
-                                               'username': self.user.username}
-
-    @property
-    def performance(self):
-        if app_settings.PERFORMANCE_FUNC:
-            return app_settings.PERFORMANCE_FUNC(self)
-        return DEFAULT_PERFORMANCE_CALCULATORS[app_settings.INVITE_ONLY](self)
-
-    def add_available(self, count=1):
-        """Add usable invitations.
-
-        **Optional arguments:**
-
-        :count:
-            Number of invitations to add. Default is ``1``.
-
-        ``invitation.signals.invitation_added`` is sent at the end.
-        """
-        self.available = models.F('available') + count
-        self.save()
-        signals.invitation_added.send(sender=self, user=self.user, count=count)
-    add_available.alters_data = True
-
-    def use(self, count=1):
-        """Mark invitations used.
-
-        Raises ``InvitationError`` if ``INVITATION_INVITE_ONLY`` is True or
-        ``count`` is more than available invitations.
-
-        **Optional arguments:**
-
-        :count:
-            Number of invitations to mark used. Default is ``1``.
-        """
-        if app_settings.INVITE_ONLY:
-            if self.available - count >= 0:
-                self.available = models.F('available') - count
-            else:
-                raise InvitationError('No available invitations.')
-        self.sent = models.F('sent') + count
-        self.save()
-    use.alters_data = True
-
-    def mark_accepted(self, count=1):
-        """Mark invitations accepted.
-
-        Raises ``InvitationError`` if more invitations than possible is
-        being accepted.
-
-        **Optional arguments:**
-
-        :count:
-            Optional. Number of invitations to mark accepted. Default is ``1``.
-        """
-        if self.accepted + count > self.sent:
-            raise InvitationError('There can\'t be more accepted ' \
-                                  'invitations than sent invitations.')
-        self.accepted = models.F('accepted') + count
-        self.save()
-    mark_accepted.alters_data = True
-
-
-def create_stats(sender, instance, created, raw, **kwargs):
-    if created and not raw:
-        InvitationStats.objects.create(user=instance)
-models.signals.post_save.connect(create_stats,
-                                 sender=User,
-                                 dispatch_uid='invitation.models.create_stats')
