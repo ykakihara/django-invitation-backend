@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import random
 
 from django.core.mail import send_mail
@@ -8,7 +9,6 @@ from django.contrib.sites.models import Site, RequestSite
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from django.utils.hashcompat import sha_constructor
 
 import app_settings
 import signals
@@ -67,7 +67,7 @@ class InvitationManager(models.Manager):
                                     random.random(),
                                     user.email,
                                     email)
-            key = sha_constructor(key).hexdigest()
+            key = hashlib.sha1(key).hexdigest()
             invitation = self.create(user=user, email=email, key=key)
         return invitation
     invite.alters_data = True
