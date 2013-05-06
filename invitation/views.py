@@ -23,7 +23,7 @@ class RegistrationView(BaseRegistrationView):
         """Search for a valid invitation key."""
         invitation_key = self.kwargs.get('invitation_key')
         try:
-            self.invitation = Invitation.objects.find(key=invitation_key)
+            self.invitation = Invitation.objects.find(invitation_key)
         except Invitation.DoesNotExist:
             return False
         return True
