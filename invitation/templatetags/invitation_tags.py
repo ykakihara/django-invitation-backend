@@ -7,8 +7,7 @@ register = template.Library()
 
 @register.inclusion_tag('admin/invitation/invitationstats/_reward_link.html')
 def admin_reward_link():
-    """
-    Adds a reward action if INVITE_ONLY is ``True``.
+    """Adds a reward action if INVITE_ONLY is ``True``.
 
     Usage::
 

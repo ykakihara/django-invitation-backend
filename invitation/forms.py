@@ -1,11 +1,11 @@
 from django import forms
 from django.contrib.auth.models import User
+
 from registration.forms import RegistrationForm
 
 
 def save_user(form_instance):
-    """
-    Create a new **active** user from form data.
+    """Create a new **active** user from form data.
 
     This method is intended to replace the ``save`` of
     ``django-registration``s ``RegistrationForm``. Required form fields
@@ -24,8 +24,7 @@ class InvitationForm(forms.Form):
 
 
 class RegistrationFormInvitation(RegistrationForm):
-    """
-    Subclass of ``registration.RegistrationForm`` that create an **active**
+    """Subclass of ``registration.RegistrationForm`` that create an **active**
     user.
 
     Since registration is (supposedly) done via invitation, no further
