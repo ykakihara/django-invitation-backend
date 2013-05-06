@@ -15,34 +15,21 @@ class InviteOnlyModeTestCase(BaseTestCase):
         # But registration after invitation view should work
         response = self.client.get(reverse('invitation_register',
                                            args=('A' * 40,)))
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('registration_disallowed'))
 
     def test_invitation(self):
-        available = self.user().invitation_stats.available
         self.client.login(username='testuser', password='testuser')
         response = self.client.post(reverse('invitation_invite'),
                                     {'email': 'friend@example.com'})
         self.assertRedirects(response, reverse('invitation_complete'))
-        self.assertEqual(self.user().invitation_stats.available, available-1)
-        # Delete previously created invitation and
-        # set available invitations count to 0.
-        Invitation.objects.all().delete()
-        invitation_stats = self.user().invitation_stats
-        invitation_stats.available = 0
-        invitation_stats.save()
-        del(invitation_stats)
-        response = self.client.post(reverse('invitation_invite'),
-                                    {'email': 'friend@example.com'})
-        self.assertRedirects(response, reverse('invitation_unavailable'))
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_registration(self):
         # Make sure error message is shown in
         # case of an invalid invitation key
         response = self.client.get(reverse('invitation_register',
                                            args=('A' * 40,)))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response,
-                                'invitation/wrong_invitation_key.html')
+        self.assertRedirects(response, reverse('registration_disallowed'))
         # Registration with an invitation
         invitation = Invitation.objects.invite(self.user(),
                                                'friend@example.com')
@@ -52,18 +39,17 @@ class InviteOnlyModeTestCase(BaseTestCase):
         self.assertTemplateUsed(response,
                                 'registration/registration_form.html')
         self.assertContains(response, invitation.email)
-        # We are posting a different email than the
-        # invitation.email but the form should just
-        # ignore it and register with invitation.email
+        # We are posting a different email than the invitation.email and the
+        # form should not ignore it and register that new email
         response = self.client.post(register_url,
                                     {'username': u'friend',
-                                     'email': u'noone@example.com',
+                                     'email': u'other@example.com',
                                      'password1': u'friend',
                                      'password2': u'friend'})
-        self.assertRedirects(response, reverse('invitation_registered'))
+        self.assertRedirects(response, '/users/friend/')
         self.assertEqual(len(mail.outbox), 0)       # No confirmation email
-        self.assertEqual(self.user().invitation_stats.accepted, 1)
         new_user = User.objects.get(username='friend')
+        self.assertEqual(new_user.email, 'other@example.com')
         self.assertEqual(new_user.is_active, True)
         self.assertRaises(Invitation.DoesNotExist,
                           Invitation.objects.get,
@@ -83,7 +69,7 @@ class InviteOptionalModeTestCase(BaseTestCase):
         # So as registration after invitation view
         response = self.client.get(reverse('invitation_register',
                                            args=('A' * 40,)))
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('registration_disallowed'))
 
     def test_invitation(self):
         self.client.login(username='testuser', password='testuser')
@@ -96,4 +82,3 @@ class InviteOptionalModeTestCase(BaseTestCase):
                                                    email='friend@example.com')
         self.assertEqual(invitation_query.count(), 1)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(self.user().invitation_stats.sent, 1)

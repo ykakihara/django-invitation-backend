@@ -1,14 +1,18 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url
+from django.views.generic.base import TemplateView
+
 import invitation.urls as invitation_urls
 
 
-urlpatterns = invitation_urls.urlpatterns + patterns('',
+urlpatterns = invitation_urls.urlpatterns + patterns(
+    '',
     url(r'^register/$',
-        'django.views.generic.simple.direct_to_template',
-        {'template': 'registration/registration_register.html'},
+        TemplateView.as_view(template_name='registration/registration_register.html'),
         name='registration_register'),
     url(r'^register/complete/$',
-        'django.views.generic.simple.direct_to_template',
-        {'template': 'registration/registration_complete.html'},
+        TemplateView.as_view(template_name='registration/registration_complete.html'),
         name='registration_complete'),
+    url(r'^users/(?P<username>[\w.@+-]+)/',
+        TemplateView.as_view(template_name='invitation/user_profile.html'),
+        name='user_profile')
 )
