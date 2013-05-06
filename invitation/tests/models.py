@@ -3,11 +3,10 @@ from django.core import mail
 from django.contrib.auth.models import User
 from utils import BaseTestCase
 from invitation import app_settings
-from invitation.models import InvitationError, Invitation
+from invitation.models import Invitation
 
 
 EXPIRE_DAYS = app_settings.EXPIRE_DAYS
-INITIAL_INVITATIONS = app_settings.INITIAL_INVITATIONS
 
 
 class InvitationTestCase(BaseTestCase):
