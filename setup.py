@@ -1,7 +1,7 @@
 import os
 import sys
 from distutils.core import setup
-from invitation import __version__, __maintainer__, __email__
+from invitation import get_version, __maintainer__, __email__
 
 
 def compile_translations():
@@ -26,18 +26,16 @@ long_description = open('README.rst').read()
 
 
 setup(
-    name = 'django-inviting',
-    version = __version__,
-    url = 'http://github.com/muhuk/django-inviting',
+    name = 'django-inviter',
+    version = get_version().replace(' ', '-'),
+    url = 'http://github.com/volrath/django-inviter',
     author = __maintainer__,
     author_email = __email__,
     license = license_text,
     packages = ['invitation',
-                'invitation.tests',
-                'invitation.templatetags'],
+                'invitation.tests'],
     package_data= {
-        'invitation': ['templates/admin/invitation/invitationstats/*',
-                       'tests/templates/invitations/*',
+        'invitation': ['tests/templates/invitations/*',
                        'tests/templates/registration/*',
                        'locale/*/LC_MESSAGES/django.*']
     },
@@ -45,7 +43,7 @@ setup(
                       'README.rst'])],
     description = 'Registration through invitations',
     long_description=long_description,
-    classifiers = ['Development Status :: 5 - Production/Stable',
+    classifiers = ['Development Status :: 4 - Beta',
                    'Environment :: Web Environment',
                    'Framework :: Django',
                    'Intended Audience :: Developers',
