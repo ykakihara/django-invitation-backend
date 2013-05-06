@@ -1,5 +1,5 @@
-Built on top of ``django-registration``, **django-inviting** handles
-registration through invitations.
+Built on top of ``django-registration``, **django-invitation-backend**
+handles registration through invitations.
 
 
 Features
@@ -7,8 +7,6 @@ Features
 
 - Invitations can be optional or required to be registered.
 - Admin integration
-- Adding available invitations with custom performance and rewarding
-  algorithms. (for invite only mode)
 
 
 Installation
@@ -16,9 +14,9 @@ Installation
 
 This application depends on ``django-registration``.
 
-#. Add ``"django-inviting"`` directory to your Python path.
-#. Add ``"invitation"`` to your ``INSTALLED_APPS`` tuple found in
-   your settings file.
+#. Add ``"django-invitation-backend"`` directory to your Python path.
+#. Add ``"invitation"`` to your ``INSTALLED_APPS`` tuple found in your
+   settings file.
 #. Include ``"invitation.urls"`` to your URLconf.
 
 
@@ -31,8 +29,8 @@ TODO
 Usage
 =====
 
-You can configure ``django-inviting`` app's behaviour with the following
-settings:
+You can configure ``django-invitation-backend`` app's behaviour with
+the following settings:
 
 :INVITATION_INVITE_ONLY:
     Set this to True if you want registration to be only possible via

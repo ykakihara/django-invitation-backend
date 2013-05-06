@@ -26,9 +26,9 @@ long_description = open('README.rst').read()
 
 
 setup(
-    name = 'django-inviter',
+    name = 'django-invitation-backend',
     version = get_version().replace(' ', '-'),
-    url = 'http://github.com/volrath/django-inviter',
+    url = 'http://github.com/volrath/django-invitation-backend',
     author = __maintainer__,
     author_email = __email__,
     license = license_text,
