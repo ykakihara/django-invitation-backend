@@ -10,5 +10,8 @@ __email__ = 'daniel.barreto.n@gmail.com'
 __status__ = 'Beta'
 
 def get_version():
-    from django.utils.version import get_version as django_get_version
+    try:
+        from django.utils.version import get_version as django_get_version
+    except ImportError:
+        from django import get_version as django_get_version
     return django_get_version(VERSION) # pragma: no cover
