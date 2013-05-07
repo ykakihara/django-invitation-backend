@@ -21,7 +21,6 @@ def compile_translations():
 compile_translations()
 
 
-license_text = open('LICENSE.txt').read()
 long_description = open('README.rst').read()
 
 
@@ -31,7 +30,7 @@ setup(
     url = 'http://github.com/volrath/django-invitation-backend',
     author = __maintainer__,
     author_email = __email__,
-    license = license_text,
+    license = 'BSD',
     packages = ['invitation',
                 'invitation.tests'],
     package_data= {
