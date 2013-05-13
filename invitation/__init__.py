@@ -1,4 +1,4 @@
-VERSION = (0, 1, 0, 'beta', 4)
+VERSION = (0, 2, 0, 'beta', 0)
 
 __author__ = u'Daniel Barreto'
 __credits__ = [u'Atamert \xd6l\xe7gen']
