@@ -19,6 +19,12 @@ from .forms import InvitationForm
 class RegistrationView(BaseRegistrationView):
     """Registration via invitation key."""
 
+    def get_context_data(self, **kwargs):
+        """Adds the current invitation to the context."""
+        context = super(RegistrationView, self).get_context_data(**kwargs)
+        context['invitation'] = self.invitation
+        return context
+
     def get_initial(self):
         """Sets the invitation's email as the initial value for the form."""
         return {'email': self.invitation.email}
