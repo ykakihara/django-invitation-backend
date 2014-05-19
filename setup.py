@@ -13,7 +13,7 @@ def compile_translations():
     curdir = os.getcwdu()
     os.chdir(os.path.join(os.path.dirname(__file__), 'invitation'))
     try:
-        compile_messages(stderr=sys.stderr)
+        compile_messages(sys.stderr)
     except TypeError:
         # compile_messages doesn't accept stderr parameter prior to 1.2.4
         compile_messages()
