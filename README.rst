@@ -2,7 +2,7 @@ Built on top of ``django-registration``, **django-invitation-backend**
 handles registration through invitations.
 
 .. note::
-   This backend is built for ``django-registration 0.9`` or above.
+   This backend is built for `a forked version of django-registration <https://github.com/ykakihara/django-registration>`_.
 
 
 Features
@@ -42,9 +42,3 @@ the following settings:
 
 :INVITATION_EXPIRE_DAYS:
     How many days before an invitation is expired. Default value is ``15``.
-
-
-See Also
-========
-
--  `django-inviting <http://https://github.com/muhuk/django-inviting>`_
