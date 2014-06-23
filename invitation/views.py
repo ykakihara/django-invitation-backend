@@ -29,10 +29,10 @@ class RegistrationView(BaseRegistrationView):
         """Sets the invitation's email as the initial value for the form."""
         return {'email': self.invitation.email}
 
-    def get_success_url(self, request, user):
+    def get_success_url(self, user):
         return (user.get_absolute_url(), (), {})
 
-    def registration_allowed(self, request):
+    def registration_allowed(self):
         """Search for a valid invitation key."""
         invitation_key = self.kwargs.get('invitation_key')
         try:
@@ -41,16 +41,16 @@ class RegistrationView(BaseRegistrationView):
             return False
         return True
 
-    def register(self, request, **cleaned_data):
+    def register(self, **cleaned_data):
         """Allow a new user to register via invitation."""
         username, email, password = cleaned_data['username'], \
                                     cleaned_data['email'], \
                                     cleaned_data['password1']
         User.objects.create_user(username, email, password)
         self.user = authenticate(username=username, password=password)
-        login(request, self.user)
+        login(self.request, self.user)
         user_registered.send(sender=self.__class__, user=self.user,
-                             request=request)
+                             request=self.request)
         self.invitation.mark_accepted(self.user)
         return self.user
 
@@ -64,8 +64,8 @@ class InvitationView(FormView):
     template_name = 'invitation/invitation_form.html'
 
     @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(InvitationView, self).dispatch(request, *args, **kwargs)
+    def dispatch(self, *args, **kwargs):
+        return super(InvitationView, self).dispatch(self.request, *args, **kwargs)
 
     def form_valid(self, form):
         try:
