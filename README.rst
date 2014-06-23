@@ -23,10 +23,11 @@ This application depends on ``django-registration``.
 #. Include ``"invitation.urls"`` to your URLconf.
 
 
-Testing & Example
-=================
+Testing
+=======
+::
 
-TODO
+$ python manage.py test invitation
 
 
 Usage
