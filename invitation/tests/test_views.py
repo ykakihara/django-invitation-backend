@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.core import mail
 from django.contrib.auth.models import User
-from utils import BaseTestCase
+from .utils import BaseTestCase
 from invitation.models import Invitation
 
 

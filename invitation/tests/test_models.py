@@ -3,7 +3,7 @@ from django.core import mail
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 
-from utils import BaseTestCase
+from .utils import BaseTestCase
 from invitation import app_settings
 from invitation.models import Invitation
 
