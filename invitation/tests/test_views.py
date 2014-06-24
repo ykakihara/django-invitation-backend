@@ -1,6 +1,11 @@
 from django.core.urlresolvers import reverse
 from django.core import mail
-from django.contrib.auth.models import User
+try:
+    from django.contrib.auth import get_user_model
+except ImportError: # django < 1.5
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
 from .utils import BaseTestCase
 from invitation.models import Invitation
 

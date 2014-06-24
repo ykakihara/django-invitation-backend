@@ -2,7 +2,12 @@ from __future__ import absolute_import
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+try:
+    from django.contrib.auth import get_user_model
+except ImportError: # django < 1.5
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
