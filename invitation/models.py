@@ -174,6 +174,7 @@ class Invitation(models.Model):
             'invitation': self,
             'expiration_days': app_settings.EXPIRE_DAYS,
             # 'site': site
+            'domain': request.get_host() if request else ''
         })
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
         signals.invitation_sent.send(sender=self)
