@@ -49,21 +49,24 @@ class InvitationManager(models.Manager):
         return invitation
     invite.alters_data = True
 
-    def find(self, invitation_key):
+    def find(self, invitation_key, **kwargs):
         """Find a valid invitation for the given key or raise
         ``Invitation.DoesNotExist``.
 
         This function always returns a valid invitation. If an invitation is
         found but not valid it will be automatically deleted.
         """
-        try:
-            invitation = self.filter(key=invitation_key)[0]
-        except IndexError:
-            raise Invitation.DoesNotExist
-        if not invitation.is_valid():
-            invitation.delete()
-            raise Invitation.DoesNotExist
-        return invitation
+        if kwargs:
+            return self.filter(**kwargs)
+        else:
+            try:
+                invitation = self.filter(key=invitation_key)[0]
+            except IndexError:
+                raise Invitation.DoesNotExist
+            if not invitation.is_valid():
+                invitation.delete()
+                raise Invitation.DoesNotExist
+            return invitation
 
     def valid(self):
         """Filter valid invitations."""
